@@ -31,7 +31,8 @@
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
             android:scaleType="fitXY"
-            android:src="@drawable/ic_check_circle"/>
+            android:src="@drawable/ic_check_circle"
+            android:contentDescription="@string/color" />
 
         <ImageButton
             android:id="@+id/flash"
@@ -40,7 +41,8 @@
             android:background="@android:color/transparent"
             android:scaleType="fitXY"
             android:src="@drawable/ic_flash"
-            android:layout_marginLeft="50dp"/>
+            android:layout_marginStart="50dp"
+            android:contentDescription="@string/flash" />
 
     </LinearLayout>
 
@@ -51,8 +53,8 @@
         android:background="@android:color/transparent"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textColor="@android:color/white"
-        android:text="Manual"
-        android:layout_gravity="top|right"
+        android:text="@string/manual"
+        android:layout_gravity="top|end"
         android:layout_margin="8dp"/>
 
     <Button
@@ -62,8 +64,8 @@
         android:background="@android:color/transparent"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textColor="@android:color/white"
-        android:text="Cancel"
-        android:layout_gravity="top|left"
+        android:text="@string/cancel"
+        android:layout_gravity="top|start"
         android:layout_margin="8dp"/>
 
     <ImageButton
@@ -74,14 +76,15 @@
         android:scaleType="fitXY"
         android:src="@drawable/ic_check_circle"
         android:layout_gravity="bottom|center"
-        android:layout_margin="30dp"/>
+        android:layout_margin="30dp"
+        android:contentDescription="@string/take_picture" />
 
     <View
         android:id="@+id/documents"
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:background="@android:color/white"
-        android:layout_gravity="bottom|left"
+        android:layout_gravity="bottom|start"
         android:layout_margin="30dp"
         android:visibility="gone"/>
 
@@ -92,8 +95,8 @@
         android:background="@android:color/transparent"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textColor="@android:color/white"
-        android:text="Done"
-        android:layout_gravity="bottom|right"
+        android:text="@string/done"
+        android:layout_gravity="bottom|end"
         android:layout_margin="30dp"
         android:visibility="gone"/>
 

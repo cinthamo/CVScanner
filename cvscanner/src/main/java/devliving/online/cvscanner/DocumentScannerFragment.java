@@ -74,6 +74,7 @@ public class DocumentScannerFragment extends BaseFragment implements DocumentTra
     private CameraSourcePreview mPreview;
     private GraphicOverlay<DocumentGraphic> mGraphicOverlay;
     private Util.FrameSizeProvider mFrameSizeProvider;
+    private boolean mManual = true;
 
     // helper objects for detecting taps and pinches.
     private GestureDetector gestureDetector;
@@ -196,7 +197,7 @@ public class DocumentScannerFragment extends BaseFragment implements DocumentTra
         if (showFlash) {
             flashToggle.setOnClickListener(v -> {
                 if (mCameraSource != null) {
-                    if (mCameraSource.getFlashMode() == Camera.Parameters.FLASH_MODE_TORCH)
+                    if (Camera.Parameters.FLASH_MODE_TORCH.equals(mCameraSource.getFlashMode()))
                         mCameraSource.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
                     else
                         mCameraSource.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
@@ -209,11 +210,24 @@ public class DocumentScannerFragment extends BaseFragment implements DocumentTra
 
         takePictureButton.setOnClickListener(v -> {
             if (mCameraSource != null)
-                mCameraSource.takePicture(() -> sound.play(MediaActionSound.SHUTTER_CLICK), data -> detectDocumentManually(data));
+                mCameraSource.takePicture(() -> sound.play(MediaActionSound.SHUTTER_CLICK), this::detectDocumentManually);
         });
 
-        if (disableAutomaticCapture)
+        if (disableAutomaticCapture) {
             manualButton.setVisibility(View.GONE);
+        } else {
+            manualButton.setOnClickListener(v -> {
+                if (mManual)
+                    manualButton.setText(R.string.automatic);
+                else
+                    manualButton.setText(R.string.manual);
+                mManual = !mManual;
+            });
+        }
+
+        cancelButton.setOnClickListener(v -> {
+            getActivity().finish();
+        });
     }
 
     @Override
