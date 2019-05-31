@@ -10,4 +10,6 @@
     <string name="automatic">Auto.</string>
     <string name="flash">Flash</string>
     <string name="color">Color</string>
+    <string name="grayscale">Grayscale</string>
+    <string name="black_and_white">Black and White</string>
 </resources>

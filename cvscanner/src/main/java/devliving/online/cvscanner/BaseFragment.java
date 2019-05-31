@@ -86,8 +86,8 @@ public abstract class BaseFragment extends Fragment implements ImageSaveTask.Sav
         isBusy = false;
     }
 
-    protected synchronized void saveCroppedImage(Bitmap bitmap, int rotation, Point[] quadPoints){
+    protected synchronized void saveCroppedImage(Bitmap bitmap, int rotation, Point[] quadPoints, int colorType) {
         if (!isBusy)
-            new ImageSaveTask(getContext(), bitmap, rotation, quadPoints, this).execute();
+            new ImageSaveTask(getContext(), bitmap, rotation, quadPoints, colorType, this).execute();
     }
 }
