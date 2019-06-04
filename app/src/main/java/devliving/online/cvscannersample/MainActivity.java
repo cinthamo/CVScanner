@@ -25,7 +25,7 @@ import java.io.IOException;
 import devliving.online.cvscanner.CVScanner;
 import devliving.online.cvscanner.util.Util;
 
-import static devliving.online.cvscanner.DocumentScannerFragment.V_FILTER_TYPE_COLOR;
+import static devliving.online.cvscanner.DocumentData.V_FILTER_TYPE_COLOR;
 
 public class MainActivity extends AppCompatActivity {
 

@@ -12,6 +12,7 @@
     <string name="color">Color</string>
     <string name="grayscale">Grayscale</string>
     <string name="black_and_white">Black and White</string>
+    <string name="photo">Photo</string>
     <string name="retake">Retake</string>
     <string name="erase">Erase</string>
     <string name="rotate">Rotate</string>

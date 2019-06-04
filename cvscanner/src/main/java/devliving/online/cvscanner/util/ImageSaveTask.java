@@ -12,10 +12,10 @@ import org.opencv.core.Size;
 
 import java.io.IOException;
 
-import static devliving.online.cvscanner.DocumentScannerFragment.V_FILTER_TYPE_BLACK_WHITE;
-import static devliving.online.cvscanner.DocumentScannerFragment.V_FILTER_TYPE_COLOR;
-import static devliving.online.cvscanner.DocumentScannerFragment.V_FILTER_TYPE_GRAYSCALE;
-import static devliving.online.cvscanner.DocumentScannerFragment.V_FILTER_TYPE_PHOTO;
+import static devliving.online.cvscanner.DocumentData.V_FILTER_TYPE_BLACK_WHITE;
+import static devliving.online.cvscanner.DocumentData.V_FILTER_TYPE_COLOR;
+import static devliving.online.cvscanner.DocumentData.V_FILTER_TYPE_GRAYSCALE;
+import static devliving.online.cvscanner.DocumentData.V_FILTER_TYPE_PHOTO;
 
 /**
  * Created by Mehedi Hasan Khan <mehedi.mailing@gmail.com> on 8/30/17.

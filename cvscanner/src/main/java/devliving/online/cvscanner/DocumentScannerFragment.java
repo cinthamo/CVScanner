@@ -40,16 +40,15 @@ import online.devliving.mobilevisionpipeline.Util;
 import online.devliving.mobilevisionpipeline.camera.CameraSource;
 import online.devliving.mobilevisionpipeline.camera.CameraSourcePreview;
 
+import static devliving.online.cvscanner.DocumentData.V_FILTER_TYPE_BLACK_WHITE;
+import static devliving.online.cvscanner.DocumentData.V_FILTER_TYPE_COLOR;
+import static devliving.online.cvscanner.DocumentData.V_FILTER_TYPE_GRAYSCALE;
 import static devliving.online.cvscanner.DocumentScannerActivity.REQ_DOCUMENT_BROWSE;
 
 /**
  * Created by Mehedi on 10/23/16.
  */
 public class DocumentScannerFragment extends BaseFragment implements DocumentTracker.DocumentDetectionListener {
-    public final static int V_FILTER_TYPE_COLOR = 0;
-    public final static int V_FILTER_TYPE_GRAYSCALE = 1;
-    public final static int V_FILTER_TYPE_BLACK_WHITE = 2;
-    public final static int V_FILTER_TYPE_PHOTO = 3;
     private final static String ARG_IS_PASSPORT = "is_passport";
     private final static String ARG_SHOW_FLASH = "show_flash";
     private final static String ARG_DISABLE_AUTOMATIC_CAPTURE = "disable_automatic_capture";

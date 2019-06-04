@@ -20,7 +20,7 @@ import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 
-import static devliving.online.cvscanner.DocumentScannerFragment.V_FILTER_TYPE_COLOR;
+import static devliving.online.cvscanner.DocumentData.V_FILTER_TYPE_COLOR;
 
 /**
  * Created by Mehedi on 10/15/16.
