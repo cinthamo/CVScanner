@@ -2,11 +2,12 @@ package devliving.online.cvscanner;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.media.Image;
 import android.os.Parcel;
 import android.os.Parcelable;
 
 import org.opencv.core.Point;
+
+import java.io.IOException;
 
 import devliving.online.cvscanner.util.Util;
 
@@ -46,37 +47,34 @@ public class DocumentData implements Parcelable {
         mImagePath = parcel.readString();
     }
 
-    public DocumentData(Context context, Document document, int filterType) {
-        this(context, document.getImage().getBitmap(), document.getImage().getMetadata().getRotation(), document.detectedQuad.points, filterType);
+    public static DocumentData Create(Context context, Document document, int filterType) {
+        return Create(context, document.getImage().getBitmap(), document.getImage().getMetadata().getRotation(), document.detectedQuad.points, filterType, true);
     }
 
-    public DocumentData(Context context, Bitmap originalImage, int filterType) {
-        this(context, originalImage, 0, new Point[0], filterType);
+    public static DocumentData Create(Context context, Bitmap originalImage, int filterType) {
+        return Create(context, originalImage, 0, new Point[0], filterType, true);
     }
 
-    private DocumentData(Context context, Bitmap originalImage, int rotation, Point[] points, int filterType) {
+    public static DocumentData Create(Context context, Bitmap originalImage, int rotation, Point[] points, int filterType, boolean saveImage) {
+        try {
+            String originalImagePath;
+            if (saveImage)
+                originalImagePath = Util.saveImage(context, "IMG_CVScanner_" + System.currentTimeMillis(), originalImage, false);
+            else
+                originalImagePath = null;
+            return new DocumentData(originalImage, originalImagePath, rotation, points, filterType);
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    private DocumentData(Bitmap originalImage, String originalImagePath, int rotation, Point[] points, int filterType) {
         mOriginalImage = originalImage;
-        mOriginalImagePath = Util.saveImage(context, "IMG_CVScanner_" + System.currentTimeMillis(), originalImage, false);
-        mRotation = 0;
-        mPoints = new Point[0];
+        mOriginalImagePath = originalImagePath;
+        mRotation = rotation;
+        mPoints = points;
         mFilterType = filterType;
         mImagePath = null;
-    }
-
-    public void setRotation(int rotation) {
-        mRotation = rotation;
-    }
-
-    public int getRotation() {
-        return mRotation;
-    }
-
-    public void setFilterType(int filterType) {
-        mFilterType = filterType;
-    }
-
-    public String getImagePath() {
-        return mImagePath;
     }
 
     @Override
@@ -95,5 +93,37 @@ public class DocumentData implements Parcelable {
         }
         dest.writeInt(mFilterType);
         dest.writeString(mImagePath);
+    }
+
+    public Bitmap useImage() {
+        return mOriginalImage;
+    }
+
+    public int getRotation() {
+        return mRotation;
+    }
+
+    public void setRotation(int rotation) {
+        mRotation = rotation;
+    }
+
+    public Point[] getPoints() {
+        return mPoints;
+    }
+
+    public int getFilterType() {
+        return mFilterType;
+    }
+
+    public void setFilterType(int filterType) {
+        mFilterType = filterType;
+    }
+
+    public String getImagePath() {
+        return mImagePath;
+    }
+
+    public void setImagePath(String imagePath) {
+        mImagePath = imagePath;
     }
 }

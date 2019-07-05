@@ -56,10 +56,10 @@ public class ImageSaveTask extends AsyncTask<Void, Void, String> {
      */
     @Override
     protected String doInBackground(Void... params) {
-        Size imageSize = new Size(mData.getImage().getWidth(), mData.getImage().getHeight());
+        Bitmap image = mData.useImage();
+        Size imageSize = new Size(image.getWidth(), image.getHeight());
         Mat imageMat = new Mat(imageSize, CvType.CV_8UC4);
-        Utils.bitmapToMat(mData.getImage(), imageMat);
-
+        Utils.bitmapToMat(image, imageMat);
         image.recycle();
 
         Mat croppedImage = CVProcessor.fourPointTransform(imageMat, mData.getPoints());
@@ -93,6 +93,7 @@ public class ImageSaveTask extends AsyncTask<Void, Void, String> {
                     "IMG_CVScanner_" + System.currentTimeMillis(), enhancedImage, false);
             enhancedImage.release();
             Util.setExifRotation(mContext, Util.getUriFromPath(imagePath), mData.getRotation());
+            mData.setImagePath(imagePath);
         } catch (IOException e) {
             e.printStackTrace();
         }

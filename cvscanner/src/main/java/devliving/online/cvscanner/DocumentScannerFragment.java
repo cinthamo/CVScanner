@@ -446,11 +446,13 @@ public class DocumentScannerFragment extends BaseFragment implements DocumentTra
 
     void processDocument(Document document) {
         synchronized (mLock) {
-            DocumentData data = new DocumentData(document, mFilterType);
-            if (!mSingleDocument)
-                addDocument(data);
-            saveCroppedImage(document.getImage().getBitmap(), document.getImage().getMetadata().getRotation(), document.detectedQuad.points, mFilterType);
-            isBusy = true;
+            DocumentData data = DocumentData.Create(getContext(), document, mFilterType);
+            if (data != null) {
+                if (!mSingleDocument)
+                    addDocument(data);
+                saveCroppedImage(document.getImage().getBitmap(), document.getImage().getMetadata().getRotation(), document.detectedQuad.points, mFilterType);
+                isBusy = true;
+            }
         }
     }
 
@@ -521,7 +523,7 @@ public class DocumentScannerFragment extends BaseFragment implements DocumentTra
         }
     }
 
-    private void detectDocumentManually(final byte[] data){
+    private void detectDocumentManually(final byte[] data) {
         Log.d("Scanner", "detecting document manually");
         new Thread(() -> {
             Bitmap image = BitmapFactory.decodeByteArray(data, 0, data.length);
@@ -537,7 +539,9 @@ public class DocumentScannerFragment extends BaseFragment implements DocumentTra
                 } else if (mSingleDocument) {
                     getActivity().finish();
                 } else {
-                    addDocument(new DocumentData(image, mFilterType));
+                    DocumentData documentData = DocumentData.Create(getContext(), image, mFilterType);
+                    if (documentData != null)
+                        addDocument(documentData);
                 }
             }
         }).start();
