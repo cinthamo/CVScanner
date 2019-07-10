@@ -2,11 +2,14 @@ package devliving.online.cvscanner;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
 
 import org.opencv.core.Point;
 
+import java.io.File;
 import java.io.IOException;
 
 import devliving.online.cvscanner.util.Util;
@@ -18,11 +21,11 @@ public class DocumentData implements Parcelable {
     public final static int V_FILTER_TYPE_PHOTO = 3;
 
     private Bitmap mOriginalImage;
-    private String mOriginalImagePath;
+    private Uri mOriginalImageUri;
     private int mRotation;
     private Point[] mPoints;
     private int mFilterType;
-    private String mImagePath;
+    private Uri mImageUri;
 
     public static final Parcelable.Creator<DocumentData> CREATOR = new Parcelable.Creator<DocumentData>() {
         @Override
@@ -37,14 +40,16 @@ public class DocumentData implements Parcelable {
     };
 
     DocumentData(Parcel parcel) {
-        mOriginalImagePath = parcel.readString();
+        mOriginalImageUri = Uri.parse(parcel.readString());
         mRotation = parcel.readInt();
         int pointLength = parcel.readInt();
         mPoints = new Point[pointLength];
         for (int n = 0; n < pointLength; n++)
             mPoints[n] = new Point(parcel.readDouble(), parcel.readDouble());
         mFilterType = parcel.readInt();
-        mImagePath = parcel.readString();
+        String imageUri = parcel.readString();
+        if (!TextUtils.isEmpty(imageUri))
+            mImageUri = Uri.parse(imageUri);
     }
 
     public static DocumentData Create(Context context, Document document, int filterType) {
@@ -57,24 +62,27 @@ public class DocumentData implements Parcelable {
 
     public static DocumentData Create(Context context, Bitmap originalImage, int rotation, Point[] points, int filterType, boolean saveImage) {
         try {
-            String originalImagePath;
-            if (saveImage)
-                originalImagePath = Util.saveImage(context, "IMG_CVScanner_" + System.currentTimeMillis(), originalImage, false);
-            else
-                originalImagePath = null;
-            return new DocumentData(originalImage, originalImagePath, rotation, points, filterType);
+            Uri originalImageUri;
+            if (saveImage) {
+                String path = Util.saveImage(context, "IMG_CVScanner_" + System.currentTimeMillis(), originalImage, false);
+                File file = new File(path);
+                originalImageUri = Util.getUriForFile(context, file);
+            }
+            else {
+                originalImageUri = null;
+            }
+            return new DocumentData(originalImage, originalImageUri, rotation, points, filterType);
         } catch (IOException e) {
             return null;
         }
     }
 
-    private DocumentData(Bitmap originalImage, String originalImagePath, int rotation, Point[] points, int filterType) {
+    private DocumentData(Bitmap originalImage, Uri originalImageUri, int rotation, Point[] points, int filterType) {
         mOriginalImage = originalImage;
-        mOriginalImagePath = originalImagePath;
+        mOriginalImageUri = originalImageUri;
         mRotation = rotation;
         mPoints = points;
         mFilterType = filterType;
-        mImagePath = null;
     }
 
     @Override
@@ -84,7 +92,7 @@ public class DocumentData implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(mOriginalImagePath);
+        dest.writeString(mOriginalImageUri.toString());
         dest.writeInt(mRotation);
         dest.writeInt(mPoints.length);
         for (int n = 0; n < mPoints.length; n++) {
@@ -92,7 +100,7 @@ public class DocumentData implements Parcelable {
             dest.writeDouble(mPoints[n].y);
         }
         dest.writeInt(mFilterType);
-        dest.writeString(mImagePath);
+        dest.writeString(mImageUri != null ? mImageUri.toString() : "");
     }
 
     public Bitmap useImage() {
@@ -119,11 +127,14 @@ public class DocumentData implements Parcelable {
         mFilterType = filterType;
     }
 
-    public String getImagePath() {
-        return mImagePath;
+    public Uri getImageUri() {
+        if (mImageUri == null)
+            return mOriginalImageUri;
+        else
+            return mImageUri;
     }
 
-    public void setImagePath(String imagePath) {
-        mImagePath = imagePath;
+    public void setImageUri(Uri imageUri) {
+        mImageUri = imageUri;
     }
 }

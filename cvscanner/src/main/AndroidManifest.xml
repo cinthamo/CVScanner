@@ -17,6 +17,11 @@
             android:configChanges="orientation|screenSize"
             />
 
+        <activity android:name=".DocumentBrowserActivity"
+            android:theme="@style/CVScannerTheme"
+            android:configChanges="orientation|screenSize"
+            />
+
         <activity android:name=".crop.CropImageActivity"
             android:theme="@style/CVScannerTheme"
             android:configChanges="orientation|screenSize"

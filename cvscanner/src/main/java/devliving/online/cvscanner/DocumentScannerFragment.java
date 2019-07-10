@@ -541,7 +541,7 @@ public class DocumentScannerFragment extends BaseFragment implements DocumentTra
                 } else {
                     DocumentData documentData = DocumentData.Create(getContext(), image, mFilterType);
                     if (documentData != null)
-                        addDocument(documentData);
+                        getActivity().runOnUiThread(() -> addDocument(documentData));
                 }
             }
         }).start();
