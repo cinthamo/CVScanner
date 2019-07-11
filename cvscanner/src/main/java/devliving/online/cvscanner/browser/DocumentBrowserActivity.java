@@ -1,4 +1,4 @@
-package devliving.online.cvscanner;
+package devliving.online.cvscanner.browser;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -17,6 +17,11 @@ import androidx.viewpager.widget.ViewPager;
 
 import java.util.ArrayList;
 import java.util.Locale;
+
+import devliving.online.cvscanner.CVScanner;
+import devliving.online.cvscanner.DocumentData;
+import devliving.online.cvscanner.R;
+import devliving.online.cvscanner.scanner.DocumentScannerActivity;
 
 import static devliving.online.cvscanner.DocumentData.V_FILTER_TYPE_BLACK_WHITE;
 import static devliving.online.cvscanner.DocumentData.V_FILTER_TYPE_COLOR;
@@ -92,7 +97,7 @@ public class DocumentBrowserActivity extends FragmentActivity {
 
         void rotate(int position) {
             DocumentData data = mDataList.get(position);
-            data.setRotation(data.getRotation() + 1);
+            data.rotate(1);
             notifyDataSetChanged();
         }
 
@@ -160,7 +165,7 @@ public class DocumentBrowserActivity extends FragmentActivity {
 
     public void onCropClick(View v) {
         DocumentData data = mImagesAdapter.getData(mPager.getCurrentItem());
-        CVScanner.startManualCropper(this, data.getImageUri(), REQ_CROP_IMAGE);
+        CVScanner.startManualCropper(this, data, REQ_CROP_IMAGE);
     }
 
     public void onRotateClick(View v) {

@@ -241,7 +241,7 @@ public final class Util {
                 default:
                     return ExifInterface.ORIENTATION_UNDEFINED;
             }
-        }finally {
+        } finally {
             closeSilently(inputStream);
         }
     }

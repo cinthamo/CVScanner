@@ -77,6 +77,14 @@ public class DocumentData implements Parcelable {
         }
     }
 
+    public static DocumentData Create(Context context, Uri imageUri) {
+        int rotation = 0;
+        try {
+            rotation = Util.getExifRotation(context, imageUri);
+        } catch (IOException ignored) { }
+        return new DocumentData(null, imageUri, rotation/90, new Point[0], V_FILTER_TYPE_COLOR);
+    }
+
     private DocumentData(Bitmap originalImage, Uri originalImageUri, int rotation, Point[] points, int filterType) {
         mOriginalImage = originalImage;
         mOriginalImageUri = originalImageUri;
@@ -111,12 +119,19 @@ public class DocumentData implements Parcelable {
         return mRotation;
     }
 
-    public void setRotation(int rotation) {
-        mRotation = rotation;
+    public void rotate(int delta) {
+        if (delta < 0)
+            delta = -delta * 3;
+        mRotation += delta;
+        mRotation = mRotation % 4;
     }
 
     public Point[] getPoints() {
         return mPoints;
+    }
+
+    public void setPoints(Point[] points) {
+        mPoints = points;
     }
 
     public int getFilterType() {
