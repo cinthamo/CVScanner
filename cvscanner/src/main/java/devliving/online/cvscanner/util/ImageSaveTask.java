@@ -62,8 +62,13 @@ public class ImageSaveTask extends AsyncTask<Void, Void, String> {
         Utils.bitmapToMat(image, imageMat);
         image.recycle();
 
-        Mat croppedImage = CVProcessor.fourPointTransform(imageMat, mData.getPoints());
-        imageMat.release();
+        Mat croppedImage;
+        if (mData.getPoints().length == 4) {
+            croppedImage = CVProcessor.fourPointTransform(imageMat, mData.getPoints());
+            imageMat.release();
+        } else {
+            croppedImage = imageMat;
+        }
 
         Mat enhancedImage;
 

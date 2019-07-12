@@ -16,8 +16,10 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.Objects;
 
 import devliving.online.cvscanner.BaseFragment;
 import devliving.online.cvscanner.Document;
@@ -25,6 +27,7 @@ import devliving.online.cvscanner.DocumentData;
 import devliving.online.cvscanner.R;
 import devliving.online.cvscanner.crop.CropImageActivity;
 import devliving.online.cvscanner.scanner.DocumentScannerActivity;
+import devliving.online.cvscanner.util.Util;
 
 import static devliving.online.cvscanner.DocumentData.V_FILTER_TYPE_BLACK_WHITE;
 import static devliving.online.cvscanner.DocumentData.V_FILTER_TYPE_COLOR;
@@ -144,7 +147,6 @@ public class DocumentBrowserFragment extends BaseFragment {
 
         void setFilterType(int position, int filterType) {
             getData(position).setFilterType(filterType);
-            notifyDataSetChanged();
         }
 
         void rotate(int position) {
@@ -193,6 +195,13 @@ public class DocumentBrowserFragment extends BaseFragment {
 
     private void setFilterType(int filterType) {
         mImagesAdapter.setFilterType(mPager.getCurrentItem(), filterType);
+        DocumentData data = mDataList.get(mPager.getCurrentItem());
+        try {
+            data.setOriginalImage(Util.loadBitmapFromUri(Objects.requireNonNull(getContext()), 1, data.getOriginalImageUri()));
+            saveCroppedImage(data);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
     private void onColorClick(View v) {
@@ -231,5 +240,11 @@ public class DocumentBrowserFragment extends BaseFragment {
 
     private void onEraseClick(View v) {
         mImagesAdapter.remove(mPager.getCurrentItem());
+    }
+
+    @Override
+    public void onSaved(String path) {
+        super.onSaved(path);
+        mImagesAdapter.notifyDataSetChanged();
     }
 }
