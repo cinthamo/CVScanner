@@ -22,6 +22,7 @@ import java.util.Locale;
 import java.util.Objects;
 
 import devliving.online.cvscanner.BaseFragment;
+import devliving.online.cvscanner.CVScanner;
 import devliving.online.cvscanner.Document;
 import devliving.online.cvscanner.DocumentData;
 import devliving.online.cvscanner.R;
@@ -34,6 +35,7 @@ import static devliving.online.cvscanner.DocumentData.V_FILTER_TYPE_COLOR;
 import static devliving.online.cvscanner.DocumentData.V_FILTER_TYPE_GRAYSCALE;
 import static devliving.online.cvscanner.DocumentData.V_FILTER_TYPE_PHOTO;
 import static devliving.online.cvscanner.browser.DocumentBrowserActivity.REQ_CROP_IMAGE;
+import static devliving.online.cvscanner.browser.DocumentBrowserActivity.REQ_SCAN;
 
 public class DocumentBrowserFragment extends BaseFragment {
     private TextView mNumbersTextView;
@@ -189,8 +191,8 @@ public class DocumentBrowserFragment extends BaseFragment {
     }
 
     private void onRetakeClick(View v) {
-        Intent intent = new Intent(getContext(), DocumentScannerActivity.class);
-        startActivity(intent);
+        DocumentData data = mDataList.get(mPager.getCurrentItem());
+        CVScanner.startScanner(getActivity(), false, true, false, data.getFilterType(), true, REQ_SCAN);
     }
 
     private void setFilterType(int filterType) {
@@ -240,6 +242,8 @@ public class DocumentBrowserFragment extends BaseFragment {
 
     private void onEraseClick(View v) {
         mImagesAdapter.remove(mPager.getCurrentItem());
+        if (mImagesAdapter.getCount() == 0)
+            done();
     }
 
     @Override

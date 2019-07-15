@@ -380,31 +380,33 @@ public class CVProcessor {
 
                     Line left = null, right = null, bottom = null, top = null;
 
-                    for(Line l:nvLines){
-                        if(l.length()/frameHeight < requiredCoverageRatio || (left != null && right != null)) break;
+                    for (Line l:nvLines) {
+                        if (l.length()/frameHeight < requiredCoverageRatio || (left != null && right != null)) break;
 
-                        if(left == null && l.isInleft(width)){
+                        if (left == null && l.isInleft(width)){
                             left = l;
                             continue;
                         }
 
-                        if(right == null && !l.isInleft(width)) right = l;
+                        if (right == null && !l.isInleft(width))
+                            right = l;
                     }
 
-                    for(Line l:nhLines){
-                        if(l.length()/frameWidth < requiredCoverageRatio || (top != null && bottom != null)) break;
+                    for (Line l:nhLines) {
+                        if (l.length()/frameWidth < requiredCoverageRatio || (top != null && bottom != null)) break;
 
-                        if(bottom == null && l.isInBottom(height)){
+                        if (bottom == null && l.isInBottom(height)){
                             bottom = l;
                             continue;
                         }
 
-                        if(top == null && !l.isInBottom(height)) top = l;
+                        if (top == null && !l.isInBottom(height))
+                            top = l;
                     }
 
                     Point[] foundPoints = null;
 
-                    if((left != null && right != null) && (bottom != null || top != null)){
+                    if ((left != null && right != null) && (bottom != null || top != null)){
                         Point vLeft = bottom != null? bottom.intersect(left):top.intersect(left);
                         Point vRight = bottom != null? bottom.intersect(right):top.intersect(right);
                         Log.d(TAG, "got the edges");
@@ -418,7 +420,7 @@ public class CVProcessor {
                             foundPoints = new Point[]{vLeft, vRight, tLeft, tRight};
                         }
                     }
-                    else if((top != null && bottom != null) && (left != null || right != null)){
+                    else if ((top != null && bottom != null) && (left != null || right != null)){
                         Point vTop = left != null? left.intersect(top):right.intersect(top);
                         Point vBottom = left != null? left.intersect(bottom):right.intersect(bottom);
                         Log.d(TAG, "got the edges");
@@ -433,7 +435,7 @@ public class CVProcessor {
                         }
                     }
 
-                    if(foundPoints != null){
+                    if (foundPoints != null){
                         Point[] sPoints = sortPoints(foundPoints);
 
                         if(isInside(sPoints, newSize)
@@ -449,20 +451,20 @@ public class CVProcessor {
         return null;
     }
 
-    static public Point getPointOnLine(Point origin, Point another, double distance){
+    public static Point getPointOnLine(Point origin, Point another, double distance){
         double dFactor = distance / new Line(origin, another).length();
         double X = ((1 - dFactor) * origin.x) + (dFactor * another.x);
         double Y = ((1 - dFactor) * origin.y) + (dFactor * another.y);
         return new Point(X, Y);
     }
 
-    static public Quadrilateral getQuadrilateral(List<MatOfPoint> contours, Size srcSize){
+    public static Quadrilateral getQuadrilateral(List<MatOfPoint> contours, Size srcSize){
         double ratio = getScaleRatio(srcSize);
         int height = Double.valueOf(srcSize.height / ratio).intValue();
         int width = Double.valueOf(srcSize.width / ratio).intValue();
         Size size = new Size(width,height);
 
-        for ( MatOfPoint c: contours ) {
+        for (MatOfPoint c: contours) {
             MatOfPoint2f c2f = new MatOfPoint2f(c.toArray());
             double peri = Imgproc.arcLength(c2f, true);
             MatOfPoint2f approx = new MatOfPoint2f();
@@ -500,7 +502,7 @@ public class CVProcessor {
         int width = Double.valueOf(srcSize.width / ratio).intValue();
         int frameWidth = Double.valueOf(frameSize / ratio).intValue();
 
-        for(MatOfPoint c:contours){
+        for (MatOfPoint c:contours){
             Rect bRect = Imgproc.boundingRect(c);
             float aspectRatio = bRect.width / (float)bRect.height;
             float coverageRatio = frameSize != 0? bRect.width/(float)frameWidth:bRect.width/(float)width;
@@ -561,7 +563,7 @@ public class CVProcessor {
             }
         }
 
-        if(foundPoints != null && foundPoints.length == 4){
+        if (foundPoints != null && foundPoints.length == 4){
             Point lowerLeft = foundPoints[3];
             Point lowerRight = foundPoints[2];
             Point topLeft = foundPoints[0];
@@ -601,7 +603,7 @@ public class CVProcessor {
         Comparator<Point> sumComparator = new Comparator<Point>() {
             @Override
             public int compare(Point lhs, Point rhs) {
-                return Double.valueOf(lhs.y + lhs.x).compareTo(rhs.y + rhs.x);
+                return Double.compare(lhs.y + lhs.x, rhs.y + rhs.x);
             }
         };
 
@@ -609,7 +611,7 @@ public class CVProcessor {
 
             @Override
             public int compare(Point lhs, Point rhs) {
-                return Double.valueOf(lhs.y - lhs.x).compareTo(rhs.y - rhs.x);
+                return Double.compare(lhs.y - lhs.x, rhs.y - rhs.x);
             }
         };
 
@@ -644,7 +646,6 @@ public class CVProcessor {
                         && rp[1].x >= rightPos && rp[1].y <= topPos
                         && rp[2].x >= rightPos && rp[2].y >= bottomPos
                         && rp[3].x <= leftPos && rp[3].y >= bottomPos
-
         );
     }
 

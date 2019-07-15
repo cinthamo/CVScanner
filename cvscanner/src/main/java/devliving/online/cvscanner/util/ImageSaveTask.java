@@ -63,7 +63,7 @@ public class ImageSaveTask extends AsyncTask<Void, Void, String> {
         image.recycle();
 
         Mat croppedImage;
-        if (mData.getPoints().length == 4) {
+        if (hasFourDifferentPoints(mData.getPoints())) {
             croppedImage = CVProcessor.fourPointTransform(imageMat, mData.getPoints());
             imageMat.release();
         } else {
@@ -104,6 +104,18 @@ public class ImageSaveTask extends AsyncTask<Void, Void, String> {
         }
 
         return imagePath;
+    }
+
+    private boolean hasFourDifferentPoints(Point[] points) {
+        if (points.length != 4)
+            return false;
+
+        for (int i = 0; i < points.length - 1; i++)
+            for (int j = i + 1; j < points.length; j++)
+                if (points[i].x == points[j].x && points[i].y == points[i].y)
+                    return false;
+
+        return true;
     }
 
     @Override

@@ -11,6 +11,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.hardware.Camera;
 import android.media.MediaActionSound;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.AttributeSet;
@@ -457,11 +458,14 @@ public class DocumentScannerFragment extends BaseFragment implements DocumentTra
         super.onSaved(path);
         if (mSingleDocument)
             done();
+        else {
+            mDocumentsButton.setVisibility(View.VISIBLE);
+            mDoneButton.setVisibility(View.VISIBLE);
+            mDocumentsButton.setImageURI(Uri.parse(path));
+        }
     }
 
     private void addDocument(DocumentData data) {
-        mDocumentsButton.setVisibility(View.VISIBLE);
-        mDoneButton.setVisibility(View.VISIBLE);
         if (mDataList == null)
             mDataList = new ArrayList<>();
         mDataList.add(data);
