@@ -507,14 +507,13 @@ public class DocumentScannerFragment extends BaseFragment implements DocumentTra
     @Override
     public void onDocumentDetected(final Document document) {
         Log.d("Scanner", "document detected");
-        if (document != null && !mDisableAutomaticCapture && !mManual) {
+        if (document != null && !mDisableAutomaticCapture && !mManual && !mIsBusy) {
             if (!matchLastQuadPoints(document.getDetectedQuad().points)) {
                 mDocumentDetected = 0;
-            } else if (++mDocumentDetected >= AUTO_SCAN_THRESHOLD) {
+            } else if (mDocumentDetected != -1 && ++mDocumentDetected >= AUTO_SCAN_THRESHOLD) {
+                mDocumentDetected = -1; // Don't process twice
                 assert getActivity() != null;
                 getActivity().runOnUiThread(() -> {
-                    if (mCameraSource != null)
-                        mCameraSource.stop();
                     processDocument(document);
                 });
             }

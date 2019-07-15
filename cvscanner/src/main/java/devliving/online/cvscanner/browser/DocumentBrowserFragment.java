@@ -1,6 +1,8 @@
 package devliving.online.cvscanner.browser;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -17,6 +19,7 @@ import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Objects;
@@ -125,17 +128,19 @@ public class DocumentBrowserFragment extends BaseFragment {
 
         @Override
         public Fragment getItem(int position) {
-            return ImageFragment.instantiate(getData(position).getImageUri());
+            DocumentData data = getData(position);
+            return ImageFragment.instantiate(data.getImageUri(), data.getRotation());
         }
 
         @Override
         public int getItemPosition(@NonNull Object object) {
             ImageFragment f = ((ImageFragment)object);
             String imageUri = f.getImageUri();
+            int imageRotation = f.getImageRotation();
             for (DocumentData data : mDataList)
-                if (data.getImageUri().toString().equals(imageUri))
+                if (data.getImageUri().toString().equals(imageUri) && data.getRotation() == imageRotation)
                     return POSITION_UNCHANGED;
-            return POSITION_NONE; // so it reloads after Cropping
+            return POSITION_NONE; // so it reloads after Cropping or Rotate
         }
 
         @Override
@@ -164,11 +169,13 @@ public class DocumentBrowserFragment extends BaseFragment {
 
     public static class ImageFragment extends Fragment {
         private final static String ARG_IMAGE_PATH = "image_path";
+        private final static String ARG_IMAGE_ROTATION = "image_rotation";
 
-        static Fragment instantiate(Uri imageUri) {
+        static Fragment instantiate(Uri imageUri, int imageRotation) {
             Fragment fragment = new ImageFragment();
             Bundle args = new Bundle();
             args.putString(ARG_IMAGE_PATH, imageUri.toString());
+            args.putInt(ARG_IMAGE_ROTATION, imageRotation);
             fragment.setArguments(args);
             return fragment;
         }
@@ -176,13 +183,40 @@ public class DocumentBrowserFragment extends BaseFragment {
         @Override
         public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
             ImageView imageView = new ImageView(getContext());
-            imageView.setImageURI(Uri.parse(getImageUri()));
+
+            try {
+                Uri imageUri = Uri.parse(getImageUri());
+                int factor = Util.calculateBitmapSampleSize(getContext(), imageUri);
+                Bitmap bitmap = Util.loadBitmapFromUri(getContext(), factor, imageUri);
+                imageView.setImageBitmap(bitmap);
+
+                if (getImageRotation() != 0 && container != null) {
+                    imageView.setScaleType(ImageView.ScaleType.MATRIX);
+                    int bmWidth = bitmap.getWidth();
+                    int bmHeight = bitmap.getHeight();
+                    Matrix rotationMatrix = Util.getRotationMatrix(bmWidth, bmHeight, getImageRotation() * 90);
+                    if (getImageRotation() % 2 != 0) {
+                        bmWidth = bitmap.getHeight();
+                        bmHeight = bitmap.getWidth();
+                    }
+                    Matrix matrix = new Matrix();
+                    Util.getMatrix(container.getWidth(), container.getHeight(), bmWidth, bmHeight, rotationMatrix, matrix);
+                    imageView.setImageMatrix(matrix);
+                }
+            } catch (IOException ignored) {
+            }
+
             return imageView;
         }
 
         String getImageUri() {
             assert getArguments() != null;
             return getArguments().getString(ARG_IMAGE_PATH);
+        }
+
+        int getImageRotation() {
+            assert getArguments() != null;
+            return getArguments().getInt(ARG_IMAGE_ROTATION);
         }
     }
 
