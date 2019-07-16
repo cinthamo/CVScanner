@@ -6,7 +6,6 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.drawable.shapes.PathShape;
-import android.util.Log;
 import android.view.Surface;
 import android.view.WindowManager;
 
@@ -15,7 +14,6 @@ import org.opencv.core.Point;
 import devliving.online.cvscanner.Document;
 import devliving.online.cvscanner.util.CVProcessor;
 import online.devliving.mobilevisionpipeline.GraphicOverlay;
-import online.devliving.mobilevisionpipeline.Util;
 
 /**
  * Created by user on 10/15/16.

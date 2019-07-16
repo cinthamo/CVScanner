@@ -1,5 +1,6 @@
 package devliving.online.cvscanner.scanner;
 
+import android.animation.Animator;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
@@ -19,14 +20,19 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.util.TypedValue;
 import android.view.GestureDetector;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.TranslateAnimation;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import androidx.annotation.ColorRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatImageView;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.fragment.app.FragmentTransaction;
 
@@ -92,6 +98,7 @@ public class DocumentScannerFragment extends BaseFragment implements DocumentTra
     private Button mFilterColorButton;
     private Button mFilterGrayscaleButton;
     private Button mFilterBlackWhiteButton;
+    private AppCompatImageView mAnimationImage;
 
     private CameraSource mCameraSource;
     private CameraSourcePreview mPreview;
@@ -197,6 +204,7 @@ public class DocumentScannerFragment extends BaseFragment implements DocumentTra
         mFilterColorButton = view.findViewById(R.id.color);
         mFilterGrayscaleButton = view.findViewById(R.id.grayscale);
         mFilterBlackWhiteButton = view.findViewById(R.id.blackWhite);
+        mAnimationImage = view.findViewById(R.id.animationImage);
     }
 
     @Override
@@ -469,9 +477,20 @@ public class DocumentScannerFragment extends BaseFragment implements DocumentTra
         if (mSingleDocument)
             done();
         else {
-            mDocumentsButton.setVisibility(View.VISIBLE);
-            mDoneButton.setVisibility(View.VISIBLE);
-            mDocumentsButton.setImageURI(Uri.parse(path));
+            mAnimationImage.setVisibility(View.VISIBLE);
+            mAnimationImage.setImageURI(Uri.parse(path));
+            mAnimationImage.setTranslationX(0);
+            mAnimationImage.setTranslationY(0);
+            mAnimationImage.animate()
+                    .translationX(mDocumentsButton.getX() - mAnimationImage.getX())
+                    .translationY(mDocumentsButton.getY() - mAnimationImage.getY())
+                    .setDuration(500)
+                    .withEndAction(() -> {
+                        mDocumentsButton.setVisibility(View.VISIBLE);
+                        mDoneButton.setVisibility(View.VISIBLE);
+                        mDocumentsButton.setImageURI(Uri.parse(path));
+                        mAnimationImage.setVisibility(View.GONE);
+                    });
         }
     }
 
