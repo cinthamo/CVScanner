@@ -477,7 +477,7 @@ public class CVProcessor {
             if (points.length == 4) {
                 Point[] foundPoints = sortPoints(points);
 
-                if (isInside(foundPoints, size) && isLargeEnough(foundPoints, size, 0.25)) {
+                if (isInside(foundPoints, size) && isLargeEnough(foundPoints, size, 0.1)) {
                     return new Quadrilateral( c , foundPoints );
                 }
                 else{
@@ -662,14 +662,14 @@ public class CVProcessor {
         return isInside;
     }
 
-    public  static boolean isLargeEnough(Point[] points, Size size, double ratio){
+    public static boolean isLargeEnough(Point[] points, Size size, double ratio) {
         double contentWidth = Math.max(new Line(points[0], points[1]).length(), new Line(points[3], points[2]).length());
         double contentHeight = Math.max(new Line(points[0], points[3]).length(), new Line(points[1], points[2]).length());
 
         double widthRatio = contentWidth/size.width;
         double heightRatio = contentHeight/size.height;
 
-        Log.d(TAG, "ratio: wr-"+ widthRatio + ", hr-" + heightRatio +", w: " + size.width + ", h: " + size.height + ", cw: " + contentWidth + ", ch: " + contentHeight);
+        Log.d(TAG, "ratio= wr: "+ widthRatio + ", hr: " + heightRatio +", w: " + size.width + ", h: " + size.height + ", cw: " + contentWidth + ", ch: " + contentHeight);
 
         return widthRatio >= ratio && heightRatio >= ratio;
     }
@@ -810,6 +810,12 @@ public class CVProcessor {
         Imgproc.cvtColor(src, dst, Imgproc.COLOR_RGB2GRAY);
         Imgproc.threshold(dst, dst1, 127, 255, Imgproc.THRESH_BINARY);
         return dst1;
+    }
+
+    public static Mat rotate(Mat src, int rotation) {
+        Mat dst = new Mat();
+        Core.rotate(src, dst, rotation % 4 - 1);
+        return dst;
     }
 
     public static class Quadrilateral {

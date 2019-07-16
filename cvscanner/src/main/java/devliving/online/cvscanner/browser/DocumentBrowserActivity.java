@@ -13,8 +13,6 @@ import devliving.online.cvscanner.BaseFragment;
 import devliving.online.cvscanner.CVScanner;
 import devliving.online.cvscanner.DocumentData;
 import devliving.online.cvscanner.R;
-import devliving.online.cvscanner.crop.CropImageActivity;
-import devliving.online.cvscanner.scanner.DocumentScannerActivity;
 
 import static devliving.online.cvscanner.CVScanner.RESULT_DATA_LIST;
 

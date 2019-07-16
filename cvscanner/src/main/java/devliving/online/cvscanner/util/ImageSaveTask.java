@@ -92,13 +92,22 @@ public class ImageSaveTask extends AsyncTask<Void, Void, String> {
                 enhancedImage = croppedImage;
         }
 
+        Mat rotatedImage;
+
+        if (mData.getRotation() != 0) {
+            rotatedImage = CVProcessor.rotate(enhancedImage, mData.getRotation());
+            enhancedImage.release();
+        } else {
+            rotatedImage = enhancedImage;
+        }
+
         String imagePath = null;
         try {
             imagePath = Util.saveImage(mContext,
-                    "IMG_CVScanner_" + System.currentTimeMillis(), enhancedImage, false);
+                    "IMG_CVScanner_" + System.currentTimeMillis(), rotatedImage, false);
             enhancedImage.release();
             mData.setImageUri(Util.getUriFromPath(imagePath));
-            Util.setExifRotation(mContext, Util.getUriFromPath(imagePath), mData.getRotation());
+            //Util.setExifRotation(mContext, Util.getUriFromPath(imagePath), mData.getRotation()); // Already did the rotation
         } catch (IOException e) {
             e.printStackTrace();
         }
