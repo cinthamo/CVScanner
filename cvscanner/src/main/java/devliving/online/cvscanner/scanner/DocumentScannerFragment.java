@@ -1,6 +1,5 @@
 package devliving.online.cvscanner.scanner;
 
-import android.animation.Animator;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
@@ -12,7 +11,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.hardware.Camera;
 import android.media.MediaActionSound;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.AttributeSet;
@@ -20,12 +18,10 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.util.TypedValue;
 import android.view.GestureDetector;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.TranslateAnimation;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
@@ -36,6 +32,7 @@ import androidx.appcompat.widget.AppCompatImageView;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.google.android.gms.common.images.Size;
 import com.google.android.gms.vision.Detector;
 import com.google.android.gms.vision.Frame;
 
@@ -477,20 +474,71 @@ public class DocumentScannerFragment extends BaseFragment implements DocumentTra
         if (mSingleDocument)
             done();
         else {
+            // Add animation
+            final Bitmap bitmap = BitmapFactory.decodeFile(path);
+
+            Point center = new Point();
+            Point[] points = mDataList.get(mDataList.size() - 1).getPoints();
+            for (Point point : points) {
+                center.x += point.x;
+                center.y += point.y;
+            }
+            center.x /= points.length;
+            center.y /= points.length;
+
+            final int screenRotation = ((WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getRotation();
+            Size cameraSize = mCameraSource.getPreviewSize();
+            if (DocumentGraphic.isPortrait(screenRotation))
+                cameraSize = new Size(cameraSize.getHeight(), cameraSize.getWidth());
+
+            float centerX = DocumentGraphic.getX(mPreview.getHeight(), mPreview.getWidth(), screenRotation, center) * mPreview.getWidth() / (float)cameraSize.getWidth();
+            float centerY = DocumentGraphic.getY(mPreview.getHeight(), mPreview.getWidth(), screenRotation, center) * mPreview.getHeight() / (float)cameraSize.getHeight();
+
+            int captureWidth = (int)(Math.max(points[1].x, points[2].x) - Math.min(points[0].x, points[3].x));
+            int captureHeight = (int)(Math.max(points[2].y, points[3].y) - Math.min(points[0].y, points[1].y));
+            Size captureSize;
+            if (DocumentGraphic.isPortrait(screenRotation))
+                captureSize = new Size(captureHeight, captureWidth);
+            else
+                captureSize = new Size(captureHeight, captureWidth);
+
+            float rotation = 0;
+            if (points[0].x != points[1].x)
+                rotation = (float) Math.toDegrees(Math.atan((points[1].y - points[0].y) / (points[1].x - points[0].x)));
+
+            FrameLayout.LayoutParams documentButtonParams = (FrameLayout.LayoutParams)mDocumentsButton.getLayoutParams();
+            float scaleStart = (captureSize.getWidth() / (float)bitmap.getWidth() + captureSize.getHeight() / (float)bitmap.getHeight()) / 2f;
+            float scaleMiddle = Math.min(mPreview.getWidth() * .9f / bitmap.getWidth(), mPreview.getHeight() * .7f / bitmap.getHeight());
+            float scaleEnd = Math.max(documentButtonParams.width / (float)bitmap.getWidth(), documentButtonParams.height / (float)bitmap.getHeight());
+
             mAnimationImage.setVisibility(View.VISIBLE);
-            mAnimationImage.setImageURI(Uri.parse(path));
-            mAnimationImage.setTranslationX(0);
-            mAnimationImage.setTranslationY(0);
+            mAnimationImage.setImageBitmap(bitmap);
+            mAnimationImage.setTranslationX(centerX - mPreview.getWidth() / 2f);
+            mAnimationImage.setTranslationY(centerY - mPreview.getHeight() / 2f);
+            mAnimationImage.setScaleX(scaleStart);
+            mAnimationImage.setScaleY(scaleStart);
+            mAnimationImage.setRotation(rotation);
+
             mAnimationImage.animate()
-                    .translationX(mDocumentsButton.getX() - mAnimationImage.getX())
-                    .translationY(mDocumentsButton.getY() - mAnimationImage.getY())
-                    .setDuration(500)
-                    .withEndAction(() -> {
-                        mDocumentsButton.setVisibility(View.VISIBLE);
-                        mDoneButton.setVisibility(View.VISIBLE);
-                        mDocumentsButton.setImageURI(Uri.parse(path));
-                        mAnimationImage.setVisibility(View.GONE);
-                    });
+                    .translationX(0)
+                    .translationY(0)
+                    .scaleX(scaleMiddle)
+                    .scaleY(scaleMiddle)
+                    .rotation(0)
+                    .setDuration(400)
+                    .withEndAction(() -> mAnimationImage.animate()
+                            .translationX((documentButtonParams.leftMargin + documentButtonParams.width / 2f) - mPreview.getWidth() / 2f)
+                            .translationY((mPreview.getHeight() - documentButtonParams.bottomMargin - documentButtonParams.height / 2f) - mPreview.getHeight() / 2f)
+                            .scaleX(scaleEnd)
+                            .scaleY(scaleEnd)
+                            .setDuration(400)
+                            .withEndAction(() -> {
+                                // Enable buttons after animation
+                                mDocumentsButton.setVisibility(View.VISIBLE);
+                                mDoneButton.setVisibility(View.VISIBLE);
+                                mDocumentsButton.setImageBitmap(bitmap);
+                                mAnimationImage.setVisibility(View.GONE);
+                            }));
         }
     }
 
@@ -541,6 +589,7 @@ public class DocumentScannerFragment extends BaseFragment implements DocumentTra
                 mDocumentDetected = 0;
             } else if (mDocumentDetected != -1 && ++mDocumentDetected >= AUTO_SCAN_THRESHOLD) {
                 mDocumentDetected = -1; // Don't process twice
+                sound.play(MediaActionSound.SHUTTER_CLICK);
                 assert getActivity() != null;
                 getActivity().runOnUiThread(() -> {
                     processDocument(document);
